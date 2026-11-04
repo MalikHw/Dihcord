@@ -1,6 +1,5 @@
 #pragma once
 #include <Geode/Geode.hpp>
-#include <Geode/cocos/platform/android/jni/JniHelper.h>
 #include <dlfcn.h>
 #include <filesystem>
 #include <cdiscord.h>
@@ -79,18 +78,6 @@ namespace sdk {
 		if (!lib) {
 			log::error("dlopen failed: {}", dlerror());
 			return false;
-		}
-
-		// dlopen doesnt run this on its own
-		auto onLoad = reinterpret_cast<jint (*)(JavaVM*, void*)>(dlsym(lib, "JNI_OnLoad"));
-		if (auto vm = JniHelper::getJavaVM(); vm && onLoad) {
-			onLoad(vm, nullptr);
-			JNIEnv* env = nullptr;
-			if (vm->GetEnv(reinterpret_cast<void**>(&env), JNI_VERSION_1_6) == JNI_OK && env && env->ExceptionCheck()) {
-				log::warn("JNI_OnLoad left a java exception, clearing it");
-				env->ExceptionDescribe();
-				env->ExceptionClear();
-			}
 		}
 
 		bool ok = true;
