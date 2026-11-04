@@ -5,13 +5,21 @@
     },
     "version": "1.0.0",
     "id": "malikhw47.discord-rpc-mobile",
-    "name": "discord rpc mobile",
+    "name": "Discord RPC Mobile",
     "developer": "MalikHw47",
-    "description": "desc.",
-    "tags": ["online", "utility"],
+    "description": "Discord Rich Presence for Geometry Dash on Android.",
+    "tags": [
+        "online",
+        "utility"
+    ],
     "links": {
         "source": "https://github.com/MalikHw/discord-rpc-mobile",
         "community": "https://discord.gg/G9bZ92eg2n"
     },
-    "settings": {}
+    "resources": {
+        "files": [
+            "resources/libdiscord_partner_sdk_arm64.so",
+            "resources/libdiscord_partner_sdk_arm32.so"
+        ]
+    }
 }
