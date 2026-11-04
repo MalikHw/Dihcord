@@ -59,7 +59,7 @@ jobs:
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
         run: |
           chmod +x gradlew
-          ./gradlew assembleRelease --no-daemon --stacktrace --info
+          ./gradlew assembleRelease --no-daemon --stacktrace
 
       - name: Rename APK
         run: cp android/app/build/outputs/apk/release/app-release.apk gd-discord-rpc.apk
