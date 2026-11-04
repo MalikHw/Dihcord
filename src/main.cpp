@@ -1,11 +1,10 @@
 #include <Geode/Geode.hpp>
-#include <Geode/ui/Notification.hpp>
 #include <Geode/modify/MenuLayer.hpp>
 #include <Geode/modify/PlayLayer.hpp>
 #include <Geode/modify/LevelEditorLayer.hpp>
 #include <ctime>
 #include <unordered_set>
-#include "sdk.hpp"
+#include "helper.hpp"
 
 using namespace geode::prelude;
 
@@ -13,20 +12,30 @@ using namespace geode::prelude;
 
 enum class RpcState { Menu, Editor, Level };
 
-static Discord_String str(std::string& s) {
-	return { reinterpret_cast<uint8_t*>(s.data()), s.size() };
+static std::string esc(const std::string& s) {
+	std::string o;
+	for (unsigned char c : s) {
+		switch (c) {
+			case '"': o += "\\\""; break;
+			case '\\': o += "\\\\"; break;
+			case '\n': o += "\\n"; break;
+			default:
+				if (c < 0x20) o += fmt::format("\\u{:04x}", c);
+				else o += static_cast<char>(c);
+		}
+	}
+	return o;
 }
 
 class Pump : public CCObject {
 public:
-	void tick(float) { sdk::api.runCallbacks(); }
+	void tick(float);
 };
 
 class Rpc {
-	Discord_Client m_client{};
-	bool m_ready = false;
-	bool m_tried = false;
+	bool m_started = false;
 	uint64_t m_start = 0;
+	std::string m_last;
 
 	Rpc() = default;
 
@@ -103,33 +112,25 @@ public:
 	}
 
 	void start() {
-		if (m_tried) return;
-		m_tried = true;
-
-		if (!sdk::load()) {
-			Notification::create("Discord RPC: couldn't load the SDK, check the logs", NotificationIcon::Error)->show();
-			return;
-		}
-
+		if (m_started) return;
+		m_started = true;
 		m_start = time(nullptr);
-		sdk::api.clientInit(&m_client);
 
-		sdk::api.clientAddLog(&m_client, [](Discord_String msg, Discord_LoggingSeverity sev, void*) {
-			log::info("[discord sdk] {}", std::string(reinterpret_cast<char*>(msg.ptr), msg.size));
-			sdk::api.freeMem(msg.ptr);
-		}, nullptr, nullptr, Discord_LoggingSeverity_Info);
+		apphelper::start();
 
-		sdk::api.clientSetAppId(&m_client, 1567396198929793025ull);
-		m_ready = true;
-
+		// the helper wants to hear from us every few seconds
 		auto pump = new Pump();
-		CCDirector::sharedDirector()->getScheduler()->scheduleSelector(schedule_selector(Pump::tick), pump, 1.f, false);
+		CCDirector::sharedDirector()->getScheduler()->scheduleSelector(schedule_selector(Pump::tick), pump, 5.f, false);
 
 		update(RpcState::Menu);
 	}
 
+	void resend() {
+		if (!m_last.empty()) apphelper::send(m_last);
+	}
+
 	void update(RpcState state, GJGameLevel* lvl = nullptr, int objects = 0) {
-		if (!m_ready) return;
+		if (!m_started) return;
 
 		static const std::unordered_set<int> robtop = {
 			1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22,
@@ -138,7 +139,6 @@ public:
 
 		std::string name = "Geometry Dash";
 		std::string st, details, smallKey, smallText;
-		std::string largeKey = "game_icon";
 
 		if (state == RpcState::Menu || !lvl) {
 			st = "Browsing Menus";
@@ -163,54 +163,17 @@ public:
 			}
 		}
 
-		auto& a = sdk::api;
-
-		Discord_Activity act{};
-		a.actInit(&act);
-		a.actSetType(&act, Discord_ActivityTypes_Playing);
-		a.actSetName(&act, str(name));
-
-		Discord_String s = str(st);
-		a.actSetState(&act, &s);
-		if (!details.empty()) {
-			Discord_String d = str(details);
-			a.actSetDetails(&act, &d);
-		}
-
-		Discord_ActivityAssets assets{};
-		a.assetsInit(&assets);
-		Discord_String lk = str(largeKey);
-		Discord_String lt = str(name);
-		a.assetsLargeImage(&assets, &lk);
-		a.assetsLargeText(&assets, &lt);
-		if (!smallKey.empty()) {
-			Discord_String sk = str(smallKey);
-			Discord_String stxt = str(smallText);
-			a.assetsSmallImage(&assets, &sk);
-			a.assetsSmallText(&assets, &stxt);
-		}
-		a.actSetAssets(&act, &assets);
-
-		Discord_ActivityTimestamps ts{};
-		a.tsInit(&ts);
-		a.tsSetStart(&ts, m_start);
-		a.actSetTimestamps(&act, &ts);
-
-		a.clientUpdatePresence(&m_client, &act, [](Discord_ClientResult* res, void*) {
-			if (!sdk::api.resultOk(res)) {
-				Discord_String err{};
-				sdk::api.resultToString(res, &err);
-				log::warn("presence update failed: {}", std::string(reinterpret_cast<char*>(err.ptr), err.size));
-				sdk::api.freeMem(err.ptr);
-			}
-			sdk::api.resultDrop(res);
-		}, nullptr, nullptr);
-
-		a.tsDrop(&ts);
-		a.assetsDrop(&assets);
-		a.actDrop(&act);
+		m_last = fmt::format(
+			R"({{"name":"{}","state":"{}","details":"{}","largeKey":"game_icon","largeText":"{}","smallKey":"{}","smallText":"{}","start":{}}})",
+			esc(name), esc(st), esc(details), esc(name), esc(smallKey), esc(smallText), m_start
+		);
+		apphelper::send(m_last);
 	}
 };
+
+void Pump::tick(float) {
+	Rpc::get().resend();
+}
 
 class $modify(RpcMenuLayer, MenuLayer) {
 	bool init() {

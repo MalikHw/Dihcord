@@ -16,13 +16,6 @@ file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS src/*.cpp)
 # Set up the mod binary
 add_library(${PROJECT_NAME} SHARED ${SOURCES})
 
-# discord's header, not committed (see README)
-set(DISCORD_INC ${CMAKE_SOURCE_DIR}/lib/discord_social_sdk/include)
-if (NOT EXISTS ${DISCORD_INC}/cdiscord.h)
-    message(FATAL_ERROR "cdiscord.h not found, put it in lib/discord_social_sdk/include (see README)")
-endif()
-target_include_directories(${PROJECT_NAME} PRIVATE ${DISCORD_INC})
-
 
 if (NOT DEFINED ENV{GEODE_SDK})
     message(FATAL_ERROR "Unable to find Geode SDK! Please define GEODE_SDK environment variable to point to Geode")

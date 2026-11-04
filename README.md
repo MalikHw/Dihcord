@@ -1,20 +1,24 @@
 # Discord RPC Mobile
 
-Discord Rich Presence for Geometry Dash on Android (Geode, GD 2.2081), using Discord's Social SDK.
+Discord Rich Presence for Geometry Dash on Android (Geode, GD 2.2081).
+
+Discord's Social SDK needs its own Java classes, which Geode mods can't load, so the SDK lives in a tiny helper app (`android/`, package `com.malikhw.gddiscordrpc`). It has no launcher icon. The mod starts it when GD launches and sends it what you're doing over a local UDP port (`127.0.0.1:47653`); the helper forwards that to Discord.
+
+Needs the Discord app installed and signed in on the same phone.
+
+## How it works
+
+1. The mod starts the helper's invisible activity once per game launch (GD pauses for a moment).
+2. If the helper isn't installed, the mod offers to copy the bundled APK to a folder you pick, then Retry checks and starts it.
+3. The helper runs a small foreground service and stops itself about a minute after GD stops talking to it.
 
 ## Building
 
-The SDK files are Discord's and aren't included. Get them from your own application's Developer Portal page (Discord Social SDK > Downloads, version 1.10 or newer, Android package).
+The Discord SDK isn't included. Get the Android package from your application's Developer Portal page (Discord Social SDK > Downloads, 1.10 or newer) and put `discord_partner_sdk.aar` in `android/app/libs/`.
 
-1. Copy `cdiscord.h` to `lib/discord_social_sdk/include/`
-2. Open `discord_partner_sdk.aar` as a zip and copy
-   - `jni/arm64-v8a/libdiscord_partner_sdk.so` to `resources/libdiscord_partner_sdk_arm64.so`
-   - `jni/armeabi-v7a/libdiscord_partner_sdk.so` to `resources/libdiscord_partner_sdk_arm32.so`
-3. `geode build --platform android64` (and `android32`)
+CI (`.github/workflows/build.yml`) builds the helper APK first, puts it in the mod's `resources/` and then builds the mod. The APK contains Discord's SDK, so keep the repo private.
 
-The `.so` files get packed into the built `.geode`, so don't publish that build.
-
-The mod loads the library at runtime with `dlopen`, so it still loads if something is missing, and logs the reason.
+Optional repo secrets so updates install over the old APK: `KEYSTORE_BASE64`, `KEYSTORE_PASSWORD`, `KEY_ALIAS`, `KEY_PASSWORD`. Without them each build is signed with a fresh debug key and you have to uninstall the helper before installing a new build.
 
 ## Credits
 

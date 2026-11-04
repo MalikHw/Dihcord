@@ -18,8 +18,7 @@
     },
     "resources": {
         "files": [
-            "resources/libdiscord_partner_sdk_arm64.so",
-            "resources/libdiscord_partner_sdk_arm32.so"
+            "resources/gd-discord-rpc.apk"
         ]
     }
 }
