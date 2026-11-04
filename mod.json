@@ -1,16 +1,14 @@
 {
     "geode": "5.11.2",
     "gd": {
-        "win": "2.2081",
-        "mac": "2.2081",
         "android": "2.2081"
     },
     "version": "1.0.0",
-    "id": "MalikHw.discord-rpc-mobile",
-    "name": "discord-rpc-mobile",
-    "developer": "MalikHw",
+    "id": "malikhw47.discord-rpc-mobile",
+    "name": "discord rpc mobile",
+    "developer": "MalikHw47",
     "description": "desc.",
-    "tags": ["yes", "yeah"],
+    "tags": ["online", "utility"],
     "links": {
         "source": "https://github.com/MalikHw/discord-rpc-mobile",
         "community": "https://discord.gg/G9bZ92eg2n"
