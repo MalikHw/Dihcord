@@ -39,9 +39,8 @@ jobs:
           KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
         if: env.KEYSTORE_BASE64 == ''
         run: |
-          mkdir -p "$HOME/.android"
-          test -f "$HOME/.android/debug.keystore" || keytool -genkeypair -v \
-            -keystore "$HOME/.android/debug.keystore" \
+          keytool -genkeypair -v \
+            -keystore "$RUNNER_TEMP/debug.keystore" \
             -storepass android \
             -alias androiddebugkey \
             -keypass android \
@@ -53,10 +52,10 @@ jobs:
       - name: Build release APK
         working-directory: android
         env:
-          KEYSTORE_FILE: ${{ secrets.KEYSTORE_BASE64 != '' && format('{0}/release.keystore', runner.temp) || '' }}
-          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
-          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
-          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+          KEYSTORE_FILE: ${{ secrets.KEYSTORE_BASE64 != '' && format('{0}/release.keystore', runner.temp) || format('{0}/debug.keystore', runner.temp) }}
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_BASE64 != '' && secrets.KEYSTORE_PASSWORD || 'android' }}
+          KEY_ALIAS: ${{ secrets.KEYSTORE_BASE64 != '' && secrets.KEY_ALIAS || 'androiddebugkey' }}
+          KEY_PASSWORD: ${{ secrets.KEYSTORE_BASE64 != '' && secrets.KEY_PASSWORD || 'android' }}
         run: |
           chmod +x gradlew
           ./gradlew assembleRelease --no-daemon --stacktrace
