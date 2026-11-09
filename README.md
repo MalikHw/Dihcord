@@ -18,3 +18,5 @@ Needs the Discord app installed and signed in on the same phone.
 ### Notices:
 - The helper app may not be trusted at first by Play Protect. and that is normal.
 - The helper app will ask for Notification perms and Ignore Battery Optimization permissions. so this never dies silently please accept them.
+
+`Note: an unmerged PR from GitHub Copilot exists in this repo's PR history. It was me lazy to fix a signing problem (ended up doing it myself) and was never merged. all shipped code is hand-written.`
