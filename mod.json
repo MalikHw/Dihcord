@@ -1,0 +1,56 @@
+{
+    "geode": "5.11.2",
+    "gd": {
+        "android": "2.2081"
+    },
+    "version": "1.0.0",
+    "id": "malikhw47.discord-rpc-mobile",
+    "name": "Discord RPC Mobile",
+    "developer": "MalikHw47",
+    "description": "Discord Rich Presence for Geometry Dash on Android.",
+    "tags": [
+        "online",
+        "utility"
+    ],
+    "links": {
+        "source": "https://github.com/MalikHw/discord-rpc-mobile",
+        "community": "https://discord.gg/G9bZ92eg2n"
+    },
+    "resources": {
+        "files": [
+            "resources/gd-discord-rpc.apk"
+        ]
+    },
+    "settings": {
+        "status-title": {
+            "type": "title",
+            "name": "Presence status text"
+        },
+        "menu-status": {
+            "type": "string",
+            "name": "Menu status",
+            "description": "Text shown while browsing menus.",
+            "default": "Browsing Menus",
+			"filter": "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!+-/:;',._?=%&{}[]()"
+        },
+        "editor-status": {
+            "type": "string",
+            "name": "Editor status",
+            "description": "Text shown in the editor. Use {objects} for the object count.",
+            "default": "In Editor ({objects} objects)",
+			"filter": "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!+-/:;',._?=%&{}[]()"
+        },
+        "level-status": {
+            "type": "string",
+            "name": "Level status",
+            "description": "Text shown while playing. Use {percent} for the best normal-mode percentage.",
+            "default": "Playing a level ({percent}%)",
+			"filter": "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!+-/:;',._?=%&{}[]()"
+        },
+        "install-button": {
+            "type": "custom:install-button",
+            "name": "Helper app",
+            "description": "Show the prompt to copy and launch the helper APK."
+        }
+    }
+}
