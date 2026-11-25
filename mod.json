@@ -1,9 +1,9 @@
 {
-    "geode": "6.0.0-beta.1",
+    "geode": "6.0.0",
     "gd": {
         "android": "2.2091"
     },
-    "version": "1.1.0",
+    "version": "1.1.1",
     "id": "malikhw47.discord-rpc-mobile",
     "name": "Discord RPC Mobile",
     "developer": "MalikHw47",
